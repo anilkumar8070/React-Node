@@ -1,0 +1,12 @@
+// Placeholder pages - to be fully implemented
+export { default as AddActivity } from './student/AddActivity';
+export { default as ActivityList } from './student/ActivityList';
+export { default as ActivityDetail } from './student/ActivityDetail';
+export { default as FacultyDashboard } from './faculty/FacultyDashboard';
+export { default as FacultyReview } from './faculty/FacultyReview';
+export { default as StudentsList } from './faculty/StudentsList';
+export { default as AdminDashboard } from './admin/AdminDashboard';
+export { default as UserManagement } from './admin/UserManagement';
+export { default as DepartmentManagement } from './admin/DepartmentManagement';
+export { default as NotificationsPage } from './NotificationsPage';
+export { default as ReportsPage } from './ReportsPage';
