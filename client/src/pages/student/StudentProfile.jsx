@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, BookOpen, Award, Settings, LogOut } from 'lucide-react';
+import { User, FileText, BookOpen, Award, Settings, LogOut, Camera } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { getMe } from '../../redux/slices/authSlice';
 import { getActivityStats } from '../../redux/slices/activitySlice';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 import Layout from '../../components/Layout';
 
 const COLORS = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
@@ -14,11 +16,52 @@ const StudentProfile = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { stats } = useSelector((state) => state.activities);
+  const [profileImage, setProfileImage] = useState(null);
+  const [uploadingProfile, setUploadingProfile] = useState(false);
 
   useEffect(() => {
     dispatch(getMe());
     dispatch(getActivityStats());
   }, [dispatch]);
+
+  const handleProfileImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploadingProfile(true);
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('/api/auth/profile-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setProfileImage(response.data.profileImage);
+      toast.success('Profile image updated successfully');
+      dispatch(getMe());
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to upload profile image');
+    } finally {
+      setUploadingProfile(false);
+    }
+  };
 
   // Prepare chart data
   const activityChartData = stats?.byCategory
@@ -40,63 +83,10 @@ const StudentProfile = () => {
       <div className="min-h-screen bg-gray-50 p-6">
         {/* Header */}
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-2xl font-bold text-gray-600">
-                  LOGO
-                </div>
-                <h1 className="text-2xl font-semibold text-gray-800">Platform Name</h1>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-gray-700 font-medium">{user?.name || 'Student Name'}</span>
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-gray-600" />
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Main Content */}
           <div className="grid grid-cols-12 gap-6">
-            {/* Sidebar */}
-            <div className="col-span-3">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <nav className="space-y-2">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <User className="w-5 h-5" />
-                    <span>Dashboard</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <FileText className="w-5 h-5" />
-                    <span>Academic Records</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <Award className="w-5 h-5" />
-                    <span>Co-curricular & Extra-curricular</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <Award className="w-5 h-5" />
-                    <span>Skills & Certifications</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <FileText className="w-5 h-5" />
-                    <span>My Approvals / Status</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <BookOpen className="w-5 h-5" />
-                    <span>Reports</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-md">
-                    <Settings className="w-5 h-5" />
-                    <span>Settings / Logout</span>
-                  </button>
-                </nav>
-              </div>
-            </div>
-
             {/* Main Content Area */}
-            <div className="col-span-9 space-y-6">
+            <div className="col-span-12 space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -152,8 +142,30 @@ const StudentProfile = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-32 h-32 bg-gray-200 rounded-full mb-3 flex items-center justify-center">
-                      <User className="w-16 h-16 text-gray-400" />
+                    <div className="relative w-32 h-32 bg-gray-200 rounded-full mb-3 flex items-center justify-center group cursor-pointer">
+                      {user?.profileImage || profileImage ? (
+                        <img
+                          src={profileImage || user?.profileImage}
+                          alt="Profile"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-16 h-16 text-gray-400" />
+                      )}
+                      <label
+                        htmlFor="profile-upload-attendance"
+                        className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      >
+                        <Camera className="w-8 h-8 text-white" />
+                      </label>
+                      <input
+                        id="profile-upload-attendance"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfileImageChange}
+                        className="hidden"
+                        disabled={uploadingProfile}
+                      />
                     </div>
                     <p className="text-gray-700 font-medium">Attendance</p>
                     <p className="text-2xl font-bold text-gray-800">{user?.attendance || 0}%</p>

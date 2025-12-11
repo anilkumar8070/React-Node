@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const seedDepartments = require('./config/seedDepartments');
+const seedClasses = require('./config/seedClasses');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
@@ -63,6 +64,7 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/departments', require('./routes/departmentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/classes', require('./routes/classRoutes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -95,8 +97,9 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB and seed data
-connectDB().then(() => {
-  seedDepartments();
+connectDB().then(async () => {
+  await seedDepartments();
+  await seedClasses();
   
   server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);

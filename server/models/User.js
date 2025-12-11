@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'faculty', 'admin'],
     default: 'student'
   },
+  // Student-specific fields
   rollNo: {
     type: String,
     sparse: true,
@@ -38,6 +39,29 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  section: {
+    type: String,
+    trim: true
+  },
+  // Faculty-specific fields
+  employeeId: {
+    type: String,
+    sparse: true,
+    unique: true
+  },
+  designation: {
+    type: String,
+    trim: true
+  },
+  qualification: {
+    type: String,
+    trim: true
+  },
+  specialization: {
+    type: String,
+    trim: true
+  },
+  // Common fields
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department'
@@ -46,13 +70,17 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  profileImage: {
+    type: String,
+    default: null
+  },
   stanor: {
     type: String,
     trim: true
   },
-  profileImage: {
+  phone: {
     type: String,
-    default: ''
+    trim: true
   },
   contactNumber: {
     type: String,

@@ -22,7 +22,15 @@ exports.register = async (req, res) => {
       });
     }
 
-    const { name, email, password, role, rollNo, program, semester, department } = req.body;
+    const { 
+      name, email, password, role, 
+      // Student fields
+      rollNo, program, semester,
+      // Faculty fields
+      employeeId, designation, qualification, specialization,
+      // Common fields
+      department, phone
+    } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -44,17 +52,43 @@ exports.register = async (req, res) => {
       }
     }
 
-    // Create user
-    const user = await User.create({
+    // Check if employee ID already exists (for faculty)
+    if (employeeId) {
+      const existingEmployeeId = await User.findOne({ employeeId });
+      if (existingEmployeeId) {
+        return res.status(400).json({
+          success: false,
+          message: 'User with this employee ID already exists'
+        });
+      }
+    }
+
+    // Create user with role-specific fields
+    const userData = {
       name,
       email,
       password,
       role: role || 'student',
-      rollNo,
-      program,
-      semester,
-      department
-    });
+      department,
+      phone
+    };
+
+    // Add student-specific fields
+    if (role === 'student') {
+      userData.rollNo = rollNo;
+      userData.program = program;
+      userData.semester = semester;
+    }
+
+    // Add faculty-specific fields
+    if (role === 'faculty') {
+      userData.employeeId = employeeId;
+      userData.designation = designation;
+      userData.qualification = qualification;
+      userData.specialization = specialization;
+    }
+
+    const user = await User.create(userData);
 
     // Generate token
     const token = generateToken(user._id);
@@ -260,6 +294,45 @@ exports.logout = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error logging out',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Update profile image
+// @route   PUT /api/auth/profile-image
+// @access  Private
+exports.updateProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image file'
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update profile image path
+    user.profileImage = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile image updated successfully',
+      profileImage: user.profileImage
+    });
+  } catch (error) {
+    console.error('Update profile image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating profile image',
       error: error.message
     });
   }

@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { Bell, User, LogOut, Menu, X, Camera } from 'lucide-react';
 import { useState } from 'react';
-import { logout } from '../redux/slices/authSlice';
+import { logout, getMe } from '../redux/slices/authSlice';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
@@ -11,10 +13,47 @@ const Layout = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
   const { unreadCount } = useSelector((state) => state.notifications);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [uploadingProfile, setUploadingProfile] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
+  };
+
+  const handleProfileImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploadingProfile(true);
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put('/api/auth/profile-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success('Profile image updated successfully');
+      dispatch(getMe());
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to upload profile image');
+    } finally {
+      setUploadingProfile(false);
+    }
   };
 
   return (
@@ -60,20 +99,36 @@ const Layout = ({ children }) => {
                   <p className="text-sm font-medium text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
                 </div>
-                <button
-                  onClick={() => navigate('/profile')}
-                  className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
-                >
-                  {user?.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt={user.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-5 h-5 text-gray-600" />
-                  )}
-                </button>
+                <div className="relative group">
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
+                  >
+                    {user?.profileImage ? (
+                      <img
+                        src={user.profileImage}
+                        alt={user.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                  <label
+                    htmlFor="header-profile-upload"
+                    className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    <Camera className="w-5 h-5 text-white" />
+                  </label>
+                  <input
+                    id="header-profile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileImageChange}
+                    className="hidden"
+                    disabled={uploadingProfile}
+                  />
+                </div>
                 <button
                   onClick={handleLogout}
                   className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition"
