@@ -31,6 +31,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/faculty/dashboard', icon: Home, label: 'Dashboard' },
     { to: '/faculty/students', icon: Users, label: 'Students' },
     { to: '/faculty/review', icon: CheckCircle, label: 'Review Activities' },
+    { to: '/faculty/messages', icon: Award, label: 'Class Messages' },
     { to: '/reports', icon: BarChart3, label: 'Reports' },
   ];
 

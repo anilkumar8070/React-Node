@@ -5,6 +5,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    host: true,
+    allowedHosts: [
+      'jennell-dirgeful-nonregeneratively.ngrok-free.dev',
+      'localhost',
+      '.ngrok-free.dev',
+      '.ngrok.io'
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

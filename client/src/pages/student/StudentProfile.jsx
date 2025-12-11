@@ -18,11 +18,34 @@ const StudentProfile = () => {
   const { stats } = useSelector((state) => state.activities);
   const [profileImage, setProfileImage] = useState(null);
   const [uploadingProfile, setUploadingProfile] = useState(false);
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [overallAttendance, setOverallAttendance] = useState(0);
 
   useEffect(() => {
     dispatch(getMe());
     dispatch(getActivityStats());
+    fetchAttendanceData();
   }, [dispatch]);
+
+  const fetchAttendanceData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/classes/student/my-attendance', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAttendanceData(response.data.data || []);
+      
+      // Calculate overall attendance
+      if (response.data.data && response.data.data.length > 0) {
+        const totalPresent = response.data.data.reduce((sum, item) => sum + parseInt(item.attendance.present), 0);
+        const totalLectures = response.data.data.reduce((sum, item) => sum + parseInt(item.attendance.total), 0);
+        const overall = totalLectures > 0 ? ((totalPresent / totalLectures) * 100).toFixed(2) : 0;
+        setOverallAttendance(overall);
+      }
+    } catch (error) {
+      console.error('Error fetching attendance:', error);
+    }
+  };
 
   const handleProfileImageChange = async (e) => {
     const file = e.target.files[0];
@@ -103,6 +126,36 @@ const StudentProfile = () => {
                 </div>
               </div>
 
+              {/* Enrolled Sections */}
+              {attendanceData.length > 0 && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                    Enrolled Sections
+                  </h2>
+                  <div className="flex flex-wrap gap-3">
+                    {attendanceData.map((classData) => (
+                      <div
+                        key={classData.class._id}
+                        className="bg-white rounded-lg border-2 border-blue-300 px-4 py-3 shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 rounded-full w-10 h-10 flex items-center justify-center">
+                            <span className="text-blue-700 font-bold text-sm">
+                              {classData.class.code.substring(0, 2)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-800">{classData.class.code}</p>
+                            <p className="text-xs text-gray-600">{classData.class.name}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Student Profile Section */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Student Profile</h2>
@@ -167,9 +220,69 @@ const StudentProfile = () => {
                         disabled={uploadingProfile}
                       />
                     </div>
-                    <p className="text-gray-700 font-medium">Attendance</p>
-                    <p className="text-2xl font-bold text-gray-800">{user?.attendance || 0}%</p>
+                    <p className="text-gray-700 font-medium">Overall Attendance</p>
+                    <p className={`text-3xl font-bold ${
+                      overallAttendance >= 75 ? 'text-green-600' : 
+                      overallAttendance >= 60 ? 'text-yellow-600' : 
+                      'text-red-600'
+                    }`}>
+                      {overallAttendance}%
+                    </p>
                   </div>
+                </div>
+              </div>
+
+              {/* Attendance Details by Class */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                  Class-wise Attendance
+                </h3>
+                <div className="space-y-4">
+                  {attendanceData.length > 0 ? (
+                    attendanceData.map((classData) => (
+                      <div key={classData.class._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-gray-800">{classData.class.code}</h4>
+                            <p className="text-sm text-gray-600">{classData.class.name}</p>
+                            <p className="text-xs text-gray-500">Faculty: {classData.class.faculty?.name}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${
+                              classData.attendance.percentage >= 75 ? 'text-green-600' : 
+                              classData.attendance.percentage >= 60 ? 'text-yellow-600' : 
+                              'text-red-600'
+                            }`}>
+                              {classData.attendance.percentage}%
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {classData.attendance.present}/{classData.attendance.total} Lectures
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                          <div className="bg-green-50 rounded p-2">
+                            <p className="text-green-700 font-semibold">{classData.attendance.present}</p>
+                            <p className="text-xs text-gray-600">Present</p>
+                          </div>
+                          <div className="bg-red-50 rounded p-2">
+                            <p className="text-red-700 font-semibold">{classData.attendance.absent}</p>
+                            <p className="text-xs text-gray-600">Absent</p>
+                          </div>
+                          <div className="bg-yellow-50 rounded p-2">
+                            <p className="text-yellow-700 font-semibold">{classData.attendance.late}</p>
+                            <p className="text-xs text-gray-600">Late</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p>No attendance data available</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -186,7 +299,7 @@ const StudentProfile = () => {
                     <div className="border-t border-gray-200 pt-2">
                       <div className="flex justify-between items-center py-2">
                         <span className="text-gray-700">Sem {user?.semester || '1'}</span>
-                        <span className="text-gray-700">-</span>
+                        <span className="text-gray-700">{attendanceData.length}</span>
                       </div>
                     </div>
                     <div className="pt-2 space-y-2">

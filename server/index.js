@@ -65,6 +65,7 @@ app.use('/api/departments', require('./routes/departmentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/classes', require('./routes/classRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

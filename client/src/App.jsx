@@ -18,6 +18,7 @@ import FacultyDashboard from './pages/faculty/FacultyDashboard';
 import FacultyReview from './pages/faculty/FacultyReview';
 import StudentsList from './pages/faculty/StudentsList';
 import ClassDetailPage from './pages/faculty/ClassDetailPage';
+import FacultyMessages from './pages/faculty/FacultyMessages';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import DepartmentManagement from './pages/admin/DepartmentManagement';
@@ -112,6 +113,14 @@ function App() {
           element={
             <RoleRoute roles={['faculty']}>
               <StudentsList />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/faculty/messages"
+          element={
+            <RoleRoute roles={['faculty']}>
+              <FacultyMessages />
             </RoleRoute>
           }
         />
