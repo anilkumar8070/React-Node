@@ -22,6 +22,9 @@ import FacultyMessages from './pages/faculty/FacultyMessages';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import DepartmentManagement from './pages/admin/DepartmentManagement';
+import FacultyManagement from './pages/admin/FacultyManagement';
+import StudentManagement from './pages/admin/StudentManagement';
+import MeetingManagement from './pages/admin/MeetingManagement';
 import NotificationsPage from './pages/NotificationsPage';
 import ReportsPage from './pages/ReportsPage';
 
@@ -155,6 +158,30 @@ function App() {
           element={
             <RoleRoute roles={['admin']}>
               <DepartmentManagement />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/faculty"
+          element={
+            <RoleRoute roles={['admin']}>
+              <FacultyManagement />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/students"
+          element={
+            <RoleRoute roles={['admin']}>
+              <StudentManagement />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/meetings"
+          element={
+            <RoleRoute roles={['admin']}>
+              <MeetingManagement />
             </RoleRoute>
           }
         />

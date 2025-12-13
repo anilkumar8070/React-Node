@@ -2,6 +2,32 @@ const Class = require('../models/Class');
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 
+// @desc    Get all classes (Admin)
+// @route   GET /api/classes/all
+// @access  Private (Admin)
+exports.getAllClasses = async (req, res) => {
+  try {
+    const classes = await Class.find()
+      .populate('faculty', 'name email designation')
+      .populate('department', 'name code')
+      .populate('students', 'name rollNo')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: classes.length,
+      classes
+    });
+  } catch (error) {
+    console.error('Get all classes error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching classes',
+      error: error.message
+    });
+  }
+};
+
 // @desc    Get all classes assigned to faculty
 // @route   GET /api/classes/my-classes
 // @access  Private (Faculty)

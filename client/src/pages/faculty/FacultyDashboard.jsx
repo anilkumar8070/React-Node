@@ -307,9 +307,9 @@ const FacultyDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* 9:00 - 10:00 */}
+                  {/* 8:00 - 9:00 */}
                   <tr>
-                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">9:00 - 10:00</td>
+                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">8:00 - 9:00</td>
                     <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-blue-100 rounded-lg p-3 text-center hover:bg-blue-200 transition cursor-pointer">
                         <p className="font-semibold text-blue-800 text-sm">K23DT</p>
@@ -327,19 +327,24 @@ const FacultyDashboard = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
+                        <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
+                        <p className="text-xs text-teal-600">Cyber Security</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 401</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-blue-100 rounded-lg p-3 text-center hover:bg-blue-200 transition cursor-pointer">
                         <p className="font-semibold text-blue-800 text-sm">K23DT</p>
                         <p className="text-xs text-blue-600">Data Science</p>
                         <p className="text-xs text-gray-600 mt-1">Room 301</p>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
                   </tr>
 
-                  {/* 10:00 - 11:00 */}
+                  {/* 9:00 - 10:00 */}
                   <tr>
-                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">10:00 - 11:00</td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
+                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">9:00 - 10:00</td>
                     <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-green-100 rounded-lg p-3 text-center hover:bg-green-200 transition cursor-pointer">
                         <p className="font-semibold text-green-800 text-sm">K23GX</p>
@@ -347,6 +352,82 @@ const FacultyDashboard = () => {
                         <p className="text-xs text-gray-600 mt-1">Room 205</p>
                       </div>
                     </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-purple-100 rounded-lg p-3 text-center hover:bg-purple-200 transition cursor-pointer">
+                        <p className="font-semibold text-purple-800 text-sm">K24AV</p>
+                        <p className="text-xs text-purple-600">Machine Learning</p>
+                        <p className="text-xs text-gray-600 mt-1">Lab 2</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
+                        <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
+                        <p className="text-xs text-teal-600">Cyber Security</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 401</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3"></td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-orange-100 rounded-lg p-3 text-center hover:bg-orange-200 transition cursor-pointer">
+                        <p className="font-semibold text-orange-800 text-sm">K24BX</p>
+                        <p className="text-xs text-orange-600">Cloud Computing</p>
+                        <p className="text-xs text-gray-600 mt-1">Lab 1</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-green-100 rounded-lg p-3 text-center hover:bg-green-200 transition cursor-pointer">
+                        <p className="font-semibold text-green-800 text-sm">K23GX</p>
+                        <p className="text-xs text-green-600">Web Technologies</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 205</p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* 10:00 - 11:00 */}
+                  <tr>
+                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">10:00 - 11:00</td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-purple-100 rounded-lg p-3 text-center hover:bg-purple-200 transition cursor-pointer">
+                        <p className="font-semibold text-purple-800 text-sm">K24AV</p>
+                        <p className="text-xs text-purple-600">Machine Learning</p>
+                        <p className="text-xs text-gray-600 mt-1">Lab 2</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3"></td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-blue-100 rounded-lg p-3 text-center hover:bg-blue-200 transition cursor-pointer">
+                        <p className="font-semibold text-blue-800 text-sm">K23DT</p>
+                        <p className="text-xs text-blue-600">Data Science</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 301</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-green-100 rounded-lg p-3 text-center hover:bg-green-200 transition cursor-pointer">
+                        <p className="font-semibold text-green-800 text-sm">K23GX</p>
+                        <p className="text-xs text-green-600">Web Technologies</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 205</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
+                        <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
+                        <p className="text-xs text-teal-600">Cyber Security</p>
+                        <p className="text-xs text-gray-600 mt-1">Room 401</p>
+                      </div>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-3">
+                      <div className="bg-purple-100 rounded-lg p-3 text-center hover:bg-purple-200 transition cursor-pointer">
+                        <p className="font-semibold text-purple-800 text-sm">K24AV</p>
+                        <p className="text-xs text-purple-600">Machine Learning</p>
+                        <p className="text-xs text-gray-600 mt-1">Lab 2</p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* 11:00 - 12:00 */}
+                  <tr>
+                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">11:00 - 12:00</td>
+                    <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-orange-100 rounded-lg p-3 text-center hover:bg-orange-200 transition cursor-pointer">
@@ -363,19 +444,6 @@ const FacultyDashboard = () => {
                         <p className="text-xs text-gray-600 mt-1">Room 205</p>
                       </div>
                     </td>
-                  </tr>
-
-                  {/* 11:00 - 12:00 */}
-                  <tr>
-                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">11:00 - 12:00</td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-purple-100 rounded-lg p-3 text-center hover:bg-purple-200 transition cursor-pointer">
-                        <p className="font-semibold text-purple-800 text-sm">K24AV</p>
-                        <p className="text-xs text-purple-600">Machine Learning</p>
-                        <p className="text-xs text-gray-600 mt-1">Lab 2</p>
-                      </div>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
                         <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
@@ -383,15 +451,6 @@ const FacultyDashboard = () => {
                         <p className="text-xs text-gray-600 mt-1">Room 401</p>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-purple-100 rounded-lg p-3 text-center hover:bg-purple-200 transition cursor-pointer">
-                        <p className="font-semibold text-purple-800 text-sm">K24AV</p>
-                        <p className="text-xs text-purple-600">Machine Learning</p>
-                        <p className="text-xs text-gray-600 mt-1">Lab 2</p>
-                      </div>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
                   </tr>
 
                   {/* 12:00 - 1:00 - LUNCH BREAK */}
@@ -406,41 +465,8 @@ const FacultyDashboard = () => {
                   <tr>
                     <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">1:00 - 2:00</td>
                     <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-orange-100 rounded-lg p-3 text-center hover:bg-orange-200 transition cursor-pointer">
-                        <p className="font-semibold text-orange-800 text-sm">K24BX</p>
-                        <p className="text-xs text-orange-600">Cloud Computing</p>
-                        <p className="text-xs text-gray-600 mt-1">Lab 1</p>
-                      </div>
-                    </td>
                     <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
-                        <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
-                        <p className="text-xs text-teal-600">Cyber Security</p>
-                        <p className="text-xs text-gray-600 mt-1">Room 401</p>
-                      </div>
-                    </td>
                     <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-teal-100 rounded-lg p-3 text-center hover:bg-teal-200 transition cursor-pointer">
-                        <p className="font-semibold text-teal-800 text-sm">K23YZ</p>
-                        <p className="text-xs text-teal-600">Cyber Security</p>
-                        <p className="text-xs text-gray-600 mt-1">Room 401</p>
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* 2:00 - 3:00 */}
-                  <tr>
-                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">2:00 - 3:00</td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-green-100 rounded-lg p-3 text-center hover:bg-green-200 transition cursor-pointer">
-                        <p className="font-semibold text-green-800 text-sm">K23GX</p>
-                        <p className="text-xs text-green-600">Web Technologies</p>
-                        <p className="text-xs text-gray-600 mt-1">Room 205</p>
-                      </div>
-                    </td>
                     <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3">
                       <div className="bg-orange-100 rounded-lg p-3 text-center hover:bg-orange-200 transition cursor-pointer">
@@ -449,38 +475,13 @@ const FacultyDashboard = () => {
                         <p className="text-xs text-gray-600 mt-1">Lab 1</p>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
                     <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-pink-100 rounded-lg p-3 text-center hover:bg-pink-200 transition cursor-pointer">
-                        <p className="font-semibold text-pink-800 text-sm">Office Hours</p>
-                        <p className="text-xs text-pink-600">Student Consultation</p>
-                        <p className="text-xs text-gray-600 mt-1">Office 302</p>
+                      <div className="bg-orange-100 rounded-lg p-3 text-center hover:bg-orange-200 transition cursor-pointer">
+                        <p className="font-semibold text-orange-800 text-sm">K24BX</p>
+                        <p className="text-xs text-orange-600">Cloud Computing</p>
+                        <p className="text-xs text-gray-600 mt-1">Lab 1</p>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
-                  </tr>
-
-                  {/* 3:00 - 4:00 */}
-                  <tr>
-                    <td className="border border-gray-300 px-4 py-3 bg-gray-50 font-medium text-sm text-gray-700">3:00 - 4:00</td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-blue-100 rounded-lg p-3 text-center hover:bg-blue-200 transition cursor-pointer">
-                        <p className="font-semibold text-blue-800 text-sm">K23DT</p>
-                        <p className="text-xs text-blue-600">Data Science</p>
-                        <p className="text-xs text-gray-600 mt-1">Room 301</p>
-                      </div>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3">
-                      <div className="bg-green-100 rounded-lg p-3 text-center hover:bg-green-200 transition cursor-pointer">
-                        <p className="font-semibold text-green-800 text-sm">K23GX</p>
-                        <p className="text-xs text-green-600">Web Technologies</p>
-                        <p className="text-xs text-gray-600 mt-1">Room 205</p>
-                      </div>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
-                    <td className="border border-gray-300 px-4 py-3"></td>
                   </tr>
                 </tbody>
               </table>

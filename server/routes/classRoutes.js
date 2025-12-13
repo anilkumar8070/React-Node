@@ -4,9 +4,13 @@ const {
   getMyClasses,
   getClassDetails,
   markAttendance,
-  getMyAttendance
+  getMyAttendance,
+  getAllClasses
 } = require('../controllers/classController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
+
+// Admin routes
+router.get('/all', protect, authorize('admin', 'faculty'), getAllClasses);
 
 // Faculty routes
 router.get('/my-classes', protect, authorize('faculty'), getMyClasses);

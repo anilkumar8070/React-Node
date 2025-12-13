@@ -111,7 +111,7 @@ const StudentProfile = () => {
             {/* Main Content Area */}
             <div className="col-span-12 space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <h3 className="text-gray-600 text-sm font-medium mb-2">Total Activities Logged</h3>
                   <p className="text-3xl font-bold text-gray-800">{stats?.total || 0}</p>
@@ -123,6 +123,10 @@ const StudentProfile = () => {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <h3 className="text-gray-600 text-sm font-medium mb-2">Credits Earned</h3>
                   <p className="text-3xl font-bold text-gray-800">{user?.totalCredits || 0}</p>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-sm border-2 border-green-200 p-6">
+                  <h3 className="text-green-700 text-sm font-medium mb-2">CGPA</h3>
+                  <p className="text-3xl font-bold text-green-800">{user?.cgpa?.toFixed(2) || '0.00'}</p>
                 </div>
               </div>
 

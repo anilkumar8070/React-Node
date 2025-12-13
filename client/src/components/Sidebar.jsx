@@ -13,6 +13,9 @@ import {
   Activity,
   BookOpen,
   PlusCircle,
+  UserCheck,
+  GraduationCap,
+  Calendar,
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -38,6 +41,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   const adminLinks = [
     { to: '/admin/dashboard', icon: Home, label: 'Dashboard' },
     { to: '/admin/users', icon: Users, label: 'User Management' },
+    { to: '/admin/faculty', icon: UserCheck, label: 'Faculty Management' },
+    { to: '/admin/students', icon: GraduationCap, label: 'Student Management' },
+    { to: '/admin/meetings', icon: Calendar, label: 'Meetings' },
     { to: '/admin/departments', icon: Building2, label: 'Departments' },
     { to: '/reports', icon: BarChart3, label: 'Reports' },
     { to: '/notifications', icon: Award, label: 'Notifications' },

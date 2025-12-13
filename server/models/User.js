@@ -61,6 +61,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  salary: {
+    basic: {
+      type: Number,
+      default: 0
+    },
+    allowances: {
+      type: Number,
+      default: 0
+    },
+    deductions: {
+      type: Number,
+      default: 0
+    }
+  },
   // Common fields
   department: {
     type: mongoose.Schema.Types.ObjectId,

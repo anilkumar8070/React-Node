@@ -10,8 +10,17 @@ const {
   createDepartment,
   updateDepartment,
   deleteDepartment,
-  getAnalytics
+  getAnalytics,
+  getAllActivities
 } = require('../controllers/adminController');
+const {
+  getAllMeetings,
+  createMeeting,
+  getMeetingById,
+  updateMeeting,
+  deleteMeeting,
+  updateAttendeeStatus
+} = require('../controllers/meetingController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 // All routes require admin authentication
@@ -21,6 +30,7 @@ router.use(authorize('admin'));
 // Dashboard and analytics
 router.get('/dashboard', getDashboard);
 router.get('/analytics', getAnalytics);
+router.get('/activities', getAllActivities);
 
 // User management
 router.route('/users')
@@ -39,5 +49,17 @@ router.route('/departments')
 router.route('/departments/:id')
   .put(updateDepartment)
   .delete(deleteDepartment);
+
+// Meeting management
+router.route('/meetings')
+  .get(getAllMeetings)
+  .post(createMeeting);
+
+router.route('/meetings/:id')
+  .get(getMeetingById)
+  .put(updateMeeting)
+  .delete(deleteMeeting);
+
+router.put('/meetings/:id/attendee-status', updateAttendeeStatus);
 
 module.exports = router;

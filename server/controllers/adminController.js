@@ -120,6 +120,31 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
+// @desc    Get all activities
+// @route   GET /api/admin/activities
+// @access  Private (Admin)
+exports.getAllActivities = async (req, res) => {
+  try {
+    const activities = await Activity.find()
+      .populate('student', 'name rollNo email program')
+      .populate('reviewedBy', 'name email')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: activities.length,
+      activities
+    });
+  } catch (error) {
+    console.error('Get all activities error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching activities',
+      error: error.message
+    });
+  }
+};
+
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Private (Admin)
