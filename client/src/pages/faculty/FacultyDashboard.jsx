@@ -153,6 +153,21 @@ const FacultyDashboard = () => {
                   <p className="text-gray-800 font-medium">{user?.phone || 'N/A'}</p>
                 </div>
               </div>
+              <div className="flex items-start gap-3">
+                <BookOpen className="w-5 h-5 text-purple-600 mt-1" />
+                <div>
+                  <p className="text-sm text-gray-500">Assigned Section</p>
+                  <p className="text-gray-800 font-medium">
+                    {user?.section ? (
+                      <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold">
+                        Section {user.section}
+                      </span>
+                    ) : (
+                      'Not Assigned'
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 

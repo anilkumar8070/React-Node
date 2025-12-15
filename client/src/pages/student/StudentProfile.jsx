@@ -131,6 +131,26 @@ const StudentProfile = () => {
                 </div>
               </div>
 
+              {/* Assigned Section - Prominent Display */}
+              {user?.section && (
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg border-2 border-purple-300 p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                        <BookOpen className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-white text-lg font-medium mb-1">Assigned Section</h2>
+                        <p className="text-purple-100 text-sm">Your current academic section</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-xl px-8 py-4 shadow-xl">
+                      <p className="text-purple-600 text-5xl font-bold">{user.section}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Enrolled Sections */}
               {attendanceData.length > 0 && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
@@ -184,6 +204,18 @@ const StudentProfile = () => {
                       <div>
                         <p className="text-sm text-gray-500">Roll No</p>
                         <p className="text-gray-800 font-medium">{user?.rollNo || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Section</p>
+                        <p className="text-gray-800 font-medium">
+                          {user?.section ? (
+                            <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold">
+                              Section {user.section}
+                            </span>
+                          ) : (
+                            'Not Assigned'
+                          )}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Department</p>

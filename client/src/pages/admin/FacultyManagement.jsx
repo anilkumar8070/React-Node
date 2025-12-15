@@ -11,7 +11,11 @@ const FacultyManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [showTimetableModal, setShowTimetableModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [editData, setEditData] = useState({
+    section: ''
+  });
   const [timetableData, setTimetableData] = useState([]);
   const [classes, setClasses] = useState([]);
   const [allFaculty, setAllFaculty] = useState([]);
@@ -195,6 +199,32 @@ const FacultyManagement = () => {
     }
   };
 
+  const openEditModal = (fac) => {
+    setSelectedFaculty(fac);
+    setEditData({
+      section: fac.section || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `/api/admin/users/${selectedFaculty._id}`,
+        { section: editData.section },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Faculty section updated successfully');
+      setShowEditModal(false);
+      fetchFaculty();
+    } catch (error) {
+      console.error('Error updating faculty:', error);
+      toast.error('Failed to update faculty');
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -244,10 +274,23 @@ const FacultyManagement = () => {
                     <p className="text-xs text-gray-600 mb-1">Specialization</p>
                     <p className="font-semibold text-gray-800">{fac.specialization || 'N/A'}</p>
                   </div>
+                  <div className="bg-purple-50 rounded-lg p-3 col-span-2">
+                    <p className="text-xs text-gray-600 mb-1">Assigned Section</p>
+                    <p className="font-semibold text-purple-700">
+                      {fac.section ? `Section ${fac.section}` : 'Not Assigned'}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditModal(fac)}
+                    className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Assign Section
+                  </button>
                   <button
                     onClick={() => openSalaryModal(fac)}
                     className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2"
@@ -614,6 +657,47 @@ const FacultyManagement = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Section Modal */}
+          {showEditModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
+                  <h2 className="text-2xl font-bold">Assign Section</h2>
+                  <p className="text-blue-100 mt-2">{selectedFaculty?.name}</p>
+                </div>
+                <form onSubmit={handleUpdate} className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-2">Section</label>
+                    <input
+                      type="text"
+                      value={editData.section}
+                      onChange={(e) => setEditData({ ...editData, section: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                      placeholder="e.g., A, B, C"
+                      required
+                    />
+                    <p className="text-sm text-gray-500 mt-2">Assign this faculty to a specific section</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+                    >
+                      Update
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
