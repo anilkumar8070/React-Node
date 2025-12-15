@@ -2,6 +2,7 @@
 export { default as AddActivity } from './student/AddActivity';
 export { default as ActivityList } from './student/ActivityList';
 export { default as ActivityDetail } from './student/ActivityDetail';
+export { default as StudentTimetable } from './student/StudentTimetable';
 export { default as FacultyDashboard } from './faculty/FacultyDashboard';
 export { default as FacultyReview } from './faculty/FacultyReview';
 export { default as StudentsList } from './faculty/StudentsList';

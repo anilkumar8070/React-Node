@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Layout from '../../components/Layout';
+import Chatbot from '../../components/Chatbot';
 import axios from 'axios';
 import { Users, BookOpen, Activity, BarChart3, UserCheck, Award, TrendingUp, Settings, Shield, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
@@ -324,6 +325,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+      <Chatbot />
     </Layout>
   );
 };

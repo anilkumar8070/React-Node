@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
+import Chatbot from '../../components/Chatbot';
 import { getMe } from '../../redux/slices/authSlice';
 import axios from 'axios';
 import { 
@@ -613,6 +614,7 @@ const FacultyDashboard = () => {
           </div>
         </div>
       </div>
+      <Chatbot />
     </Layout>
   );
 };

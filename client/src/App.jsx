@@ -14,6 +14,7 @@ import StudentProfile from './pages/student/StudentProfile';
 import AddActivity from './pages/student/AddActivity';
 import ActivityList from './pages/student/ActivityList';
 import ActivityDetail from './pages/student/ActivityDetail';
+import StudentTimetable from './pages/student/StudentTimetable';
 import FacultyDashboard from './pages/faculty/FacultyDashboard';
 import FacultyReview from './pages/faculty/FacultyReview';
 import StudentsList from './pages/faculty/StudentsList';
@@ -90,6 +91,14 @@ function App() {
           element={
             <RoleRoute roles={['student']}>
               <ActivityDetail />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/timetable"
+          element={
+            <RoleRoute roles={['student']}>
+              <StudentTimetable />
             </RoleRoute>
           }
         />

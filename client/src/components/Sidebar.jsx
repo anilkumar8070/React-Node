@@ -16,6 +16,7 @@ import {
   UserCheck,
   GraduationCap,
   Calendar,
+  Clock,
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -26,6 +27,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/profile', icon: User, label: 'Profile' },
     { to: '/activities', icon: FileText, label: 'My Activities' },
     { to: '/activities/add', icon: PlusCircle, label: 'Add Activity' },
+    { to: '/timetable', icon: Clock, label: 'Timetable' },
     { to: '/reports', icon: BarChart3, label: 'Reports' },
     { to: '/notifications', icon: Award, label: 'Notifications' },
   ];

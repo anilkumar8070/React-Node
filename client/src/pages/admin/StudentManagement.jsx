@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import axios from 'axios';
-import { Users, Edit, Trash2, Award, BookOpen, TrendingUp, Search } from 'lucide-react';
+import { Users, Edit, Trash2, Award, BookOpen, TrendingUp, Search, Calendar, Plus, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const StudentManagement = () => {
@@ -11,6 +11,22 @@ const StudentManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showTimetableModal, setShowTimetableModal] = useState(false);
+  const [timetableData, setTimetableData] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [faculty, setFaculty] = useState([]);
+  const [showAddTimetable, setShowAddTimetable] = useState(false);
+  const [newTimetable, setNewTimetable] = useState({
+    class: '',
+    subject: '',
+    faculty: '',
+    dayOfWeek: 'Monday',
+    startTime: '',
+    endTime: '',
+    room: '',
+    type: 'Lecture'
+  });
+  const [editingTimetable, setEditingTimetable] = useState(null);
   const [editData, setEditData] = useState({
     cgpa: '',
     semester: '',
@@ -80,6 +96,114 @@ const StudentManagement = () => {
     } catch (error) {
       console.error('Error updating student:', error);
       toast.error('Failed to update student');
+    }
+  };
+
+  const openTimetableModal = async (student) => {
+    setSelectedStudent(student);
+    setShowTimetableModal(true);
+    setShowAddTimetable(false);
+    await fetchStudentTimetable(student._id);
+    await fetchClasses();
+    await fetchFaculty();
+  };
+
+  const fetchStudentTimetable = async (studentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`/api/timetable/student/${studentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTimetableData(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching timetable:', error);
+      toast.error('Failed to load timetable');
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/classes', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setClasses(response.data.classes || []);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  };
+
+  const fetchFaculty = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/admin/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFaculty(response.data.users.filter(u => u.role === 'faculty') || []);
+    } catch (error) {
+      console.error('Error fetching faculty:', error);
+    }
+  };
+
+  const handleAddTimetable = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        '/api/timetable',
+        newTimetable,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Timetable entry added successfully');
+      setShowAddTimetable(false);
+      setNewTimetable({
+        class: '',
+        subject: '',
+        faculty: '',
+        dayOfWeek: 'Monday',
+        startTime: '',
+        endTime: '',
+        room: '',
+        type: 'Lecture'
+      });
+      await fetchStudentTimetable(selectedStudent._id);
+    } catch (error) {
+      console.error('Error adding timetable:', error);
+      toast.error(error.response?.data?.message || 'Failed to add timetable entry');
+    }
+  };
+
+  const handleUpdateTimetable = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `/api/timetable/${editingTimetable._id}`,
+        editingTimetable,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Timetable entry updated successfully');
+      setEditingTimetable(null);
+      await fetchStudentTimetable(selectedStudent._id);
+    } catch (error) {
+      console.error('Error updating timetable:', error);
+      toast.error(error.response?.data?.message || 'Failed to update timetable entry');
+    }
+  };
+
+  const handleDeleteTimetable = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this timetable entry?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`/api/timetable/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Timetable entry deleted successfully');
+      await fetchStudentTimetable(selectedStudent._id);
+    } catch (error) {
+      console.error('Error deleting timetable:', error);
+      toast.error('Failed to delete timetable entry');
     }
   };
 
@@ -204,12 +328,22 @@ const StudentManagement = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-800">{student.totalCredits || 0}</td>
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleEdit(student)}
-                          className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(student)}
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition"
+                            title="Edit Details"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => openTimetableModal(student)}
+                            className="bg-purple-50 hover:bg-purple-100 text-purple-600 p-2 rounded-lg transition"
+                            title="Manage Timetable"
+                          >
+                            <Calendar className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -277,6 +411,304 @@ const StudentManagement = () => {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* Timetable Modal */}
+          {showTimetableModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-t-2xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <Calendar className="w-6 h-6" />
+                        Manage Student Timetable
+                      </h2>
+                      <p className="text-purple-100 mt-2">{selectedStudent?.name} - {selectedStudent?.rollNo}</p>
+                    </div>
+                    <button 
+                      onClick={() => setShowTimetableModal(false)} 
+                      className="text-white hover:bg-white/20 rounded-lg p-2"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-gray-800">Weekly Schedule</h3>
+                    <button
+                      onClick={() => setShowAddTimetable(!showAddTimetable)}
+                      className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Entry
+                    </button>
+                  </div>
+
+                  {/* Add Timetable Form */}
+                  {showAddTimetable && (
+                    <div className="bg-purple-50 rounded-xl p-6 mb-6">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Add New Timetable Entry</h4>
+                      <form onSubmit={handleAddTimetable} className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Class</label>
+                          <select
+                            value={newTimetable.class}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, class: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            required
+                          >
+                            <option value="">Select Class</option>
+                            {classes.map(cls => (
+                              <option key={cls._id} value={cls._id}>{cls.code} - {cls.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Subject</label>
+                          <input
+                            type="text"
+                            value={newTimetable.subject}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, subject: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            placeholder="e.g., Mathematics"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Faculty</label>
+                          <select
+                            value={newTimetable.faculty}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, faculty: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            required
+                          >
+                            <option value="">Select Faculty</option>
+                            {faculty.map(fac => (
+                              <option key={fac._id} value={fac._id}>{fac.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Day</label>
+                          <select
+                            value={newTimetable.dayOfWeek}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, dayOfWeek: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            required
+                          >
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Start Time</label>
+                          <input
+                            type="time"
+                            value={newTimetable.startTime}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, startTime: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">End Time</label>
+                          <input
+                            type="time"
+                            value={newTimetable.endTime}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, endTime: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Room</label>
+                          <input
+                            type="text"
+                            value={newTimetable.room}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, room: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                            placeholder="e.g., Room 301"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-700 font-medium mb-2">Type</label>
+                          <select
+                            value={newTimetable.type}
+                            onChange={(e) => setNewTimetable({ ...newTimetable, type: e.target.value })}
+                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                          >
+                            <option value="Lecture">Lecture</option>
+                            <option value="Tutorial">Tutorial</option>
+                            <option value="Lab">Lab</option>
+                            <option value="Practical">Practical</option>
+                          </select>
+                        </div>
+                        <div className="col-span-2 flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setShowAddTimetable(false)}
+                            className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300 transition"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 bg-purple-600 text-white py-2 rounded-lg font-medium hover:bg-purple-700 transition"
+                          >
+                            Add Entry
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Timetable Display */}
+                  {timetableData.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-lg">No timetable entries found</p>
+                      <p className="text-sm">Click "Add Entry" to create a new timetable entry</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => {
+                        const dayEntries = timetableData.filter(entry => entry.dayOfWeek === day);
+                        if (dayEntries.length === 0) return null;
+                        
+                        return (
+                          <div key={day} className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+                            <div className="bg-purple-600 text-white px-6 py-3">
+                              <h4 className="text-lg font-bold">{day}</h4>
+                            </div>
+                            <div className="divide-y divide-gray-200">
+                              {dayEntries.map(entry => (
+                                <div key={entry._id}>
+                                  {editingTimetable && editingTimetable._id === entry._id ? (
+                                    <form onSubmit={handleUpdateTimetable} className="p-4 bg-purple-50">
+                                      <div className="grid grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                          <label className="block text-gray-700 font-medium mb-1 text-sm">Subject</label>
+                                          <input
+                                            type="text"
+                                            value={editingTimetable.subject}
+                                            onChange={(e) => setEditingTimetable({ ...editingTimetable, subject: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                            required
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-gray-700 font-medium mb-1 text-sm">Start Time</label>
+                                          <input
+                                            type="time"
+                                            value={editingTimetable.startTime}
+                                            onChange={(e) => setEditingTimetable({ ...editingTimetable, startTime: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                            required
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-gray-700 font-medium mb-1 text-sm">End Time</label>
+                                          <input
+                                            type="time"
+                                            value={editingTimetable.endTime}
+                                            onChange={(e) => setEditingTimetable({ ...editingTimetable, endTime: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                            required
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-gray-700 font-medium mb-1 text-sm">Room</label>
+                                          <input
+                                            type="text"
+                                            value={editingTimetable.room}
+                                            onChange={(e) => setEditingTimetable({ ...editingTimetable, room: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-gray-700 font-medium mb-1 text-sm">Type</label>
+                                          <select
+                                            value={editingTimetable.type}
+                                            onChange={(e) => setEditingTimetable({ ...editingTimetable, type: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                          >
+                                            <option value="Lecture">Lecture</option>
+                                            <option value="Tutorial">Tutorial</option>
+                                            <option value="Lab">Lab</option>
+                                            <option value="Practical">Practical</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditingTimetable(null)}
+                                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="submit"
+                                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                                        >
+                                          Save
+                                        </button>
+                                      </div>
+                                    </form>
+                                  ) : (
+                                    <div className="p-4 hover:bg-gray-50 flex items-center justify-between">
+                                      <div className="flex-1 grid grid-cols-4 gap-4">
+                                        <div>
+                                          <p className="text-sm text-gray-600">Subject</p>
+                                          <p className="font-semibold text-gray-800">{entry.subject}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm text-gray-600">Time</p>
+                                          <p className="font-semibold text-gray-800">{entry.startTime} - {entry.endTime}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm text-gray-600">Faculty</p>
+                                          <p className="font-semibold text-gray-800">{entry.faculty?.name || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm text-gray-600">Room / Type</p>
+                                          <p className="font-semibold text-gray-800">{entry.room || 'N/A'} / {entry.type}</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2 ml-4">
+                                        <button
+                                          onClick={() => setEditingTimetable(entry)}
+                                          className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition"
+                                        >
+                                          <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteTimetable(entry._id)}
+                                          className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

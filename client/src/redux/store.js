@@ -4,6 +4,7 @@ import activityReducer from './slices/activitySlice';
 import userReducer from './slices/userSlice';
 import notificationReducer from './slices/notificationSlice';
 import departmentReducer from './slices/departmentSlice';
+import timetableReducer from './slices/timetableSlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     users: userReducer,
     notifications: notificationReducer,
     departments: departmentReducer,
+    timetable: timetableReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

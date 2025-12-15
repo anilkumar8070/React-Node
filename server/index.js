@@ -18,7 +18,23 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = socketIO(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps)
+      if (!origin) return callback(null, true);
+      
+      // Allow localhost and ngrok URLs
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.CLIENT_URL
+      ].filter(Boolean);
+      
+      if (allowedOrigins.includes(origin) || origin.includes('ngrok')) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -28,8 +44,25 @@ const io = socketIO(server, {
 connectDB();
 
 // Middleware
+// Allow multiple origins including ngrok
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and ngrok URLs
+    if (allowedOrigins.includes(origin) || origin.includes('ngrok')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -66,6 +99,8 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/classes', require('./routes/classRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/timetable', require('./routes/timetableRoutes'));
+app.use('/api/chatbot', require('./routes/chatbotRoutes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -8,6 +8,7 @@ import { getActivityStats } from '../../redux/slices/activitySlice';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import Layout from '../../components/Layout';
+import Chatbot from '../../components/Chatbot';
 
 const COLORS = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
@@ -366,6 +367,7 @@ const StudentProfile = () => {
           </div>
         </div>
       </div>
+      <Chatbot />
     </Layout>
   );
 };
