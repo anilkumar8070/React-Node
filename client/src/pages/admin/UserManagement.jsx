@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import axios from 'axios';
-import { Users, Plus, Edit, Trash2, Search, Filter, UserCheck, GraduationCap, ShieldAlert, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, Plus, Edit, Trash2, Search, Filter, UserCheck, GraduationCap, ShieldAlert, Mail, Phone, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const UserManagement = () => {
@@ -12,6 +12,7 @@ const UserManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -25,7 +26,8 @@ const UserManagement = () => {
     semester: '',
     designation: '',
     specialization: '',
-    phone: ''
+    phone: '',
+    accountStatus: 'pending'
   });
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -36,7 +38,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     filterUsers();
-  }, [searchTerm, roleFilter, users]);
+  }, [searchTerm, roleFilter, statusFilter, users]);
 
   const fetchUsers = async () => {
     try {
@@ -71,6 +73,10 @@ const UserManagement = () => {
 
     if (roleFilter) {
       filtered = filtered.filter(u => u.role === roleFilter);
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(u => u.accountStatus === statusFilter);
     }
 
     if (searchTerm) {
@@ -128,7 +134,8 @@ const UserManagement = () => {
       semester: user.semester || '',
       designation: user.designation || '',
       specialization: user.specialization || '',
-      phone: user.phone || ''
+      phone: user.phone || '',
+      accountStatus: user.accountStatus || 'pending'
     });
     setIsEditing(true);
     setShowModal(true);
@@ -163,7 +170,8 @@ const UserManagement = () => {
       semester: '',
       designation: '',
       specialization: '',
-      phone: ''
+      phone: '',
+      accountStatus: 'pending'
     });
     setIsEditing(false);
     setSelectedUser(null);
@@ -194,6 +202,60 @@ const UserManagement = () => {
         {role.charAt(0).toUpperCase() + role.slice(1)}
       </span>
     );
+  };
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      pending: 'bg-yellow-100 text-yellow-700',
+      approved: 'bg-green-100 text-green-700',
+      rejected: 'bg-red-100 text-red-700'
+    };
+    const icons = {
+      pending: <Clock className="w-3 h-3" />,
+      approved: <CheckCircle className="w-3 h-3" />,
+      rejected: <XCircle className="w-3 h-3" />
+    };
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[status]} flex items-center gap-1 inline-flex`}>
+        {icons[status]}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
+  const handleApprove = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `/api/admin/users/${userId}/approve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('User approved successfully');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error approving user:', error);
+      toast.error(error.response?.data?.message || 'Failed to approve user');
+    }
+  };
+
+  const handleReject = async (userId) => {
+    const reason = window.prompt('Enter rejection reason:');
+    if (!reason) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `/api/admin/users/${userId}/reject`,
+        { reason },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('User rejected');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error rejecting user:', error);
+      toast.error(error.response?.data?.message || 'Failed to reject user');
+    }
   };
 
   if (loading) {
@@ -232,7 +294,7 @@ const UserManagement = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -269,11 +331,20 @@ const UserManagement = () => {
                 <ShieldAlert className="w-12 h-12 text-red-600" />
               </div>
             </div>
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm mb-1">Pending</p>
+                  <p className="text-3xl font-bold text-yellow-600">{users.filter(u => u.accountStatus === 'pending').length}</p>
+                </div>
+                <Clock className="w-12 h-12 text-yellow-600" />
+              </div>
+            </div>
           </div>
 
           {/* Filters */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -301,6 +372,21 @@ const UserManagement = () => {
                   </select>
                 </div>
               </div>
+              <div>
+                <div className="relative">
+                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -313,6 +399,7 @@ const UserManagement = () => {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">User</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Department</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Contact</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
@@ -344,6 +431,9 @@ const UserManagement = () => {
                       <td className="px-6 py-4 text-sm text-gray-800 font-medium">
                         {user.role === 'student' ? user.rollNo || 'N/A' : user.employeeId || 'N/A'}
                       </td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(user.accountStatus || 'approved')}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-800">
                         {user.department?.name || 'N/A'}
                       </td>
@@ -355,6 +445,24 @@ const UserManagement = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {user.accountStatus === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(user._id)}
+                                className="bg-green-50 hover:bg-green-100 text-green-600 p-2 rounded-lg transition"
+                                title="Approve"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleReject(user._id)}
+                                className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition"
+                                title="Reject"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
                           <button
                             onClick={() => handleEdit(user)}
                             className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition"
@@ -429,6 +537,19 @@ const UserManagement = () => {
                         <option value="student">Student</option>
                         <option value="faculty">Faculty</option>
                         <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">Account Status *</label>
+                      <select
+                        value={formData.accountStatus}
+                        onChange={(e) => setFormData({ ...formData, accountStatus: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                        required
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
                       </select>
                     </div>
                     <div>

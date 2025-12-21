@@ -138,9 +138,9 @@ connectDB().then(async () => {
   await seedClasses();
   
   server.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📡 Socket.IO server initialized`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log(` Server running on port ${PORT}`);
+    console.log(` Socket.IO server initialized`);
+    console.log(` Environment: ${process.env.NODE_ENV}`);
   });
 });
 

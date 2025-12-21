@@ -199,7 +199,12 @@ exports.getUsers = async (req, res) => {
 // @access  Private (Admin)
 exports.createUser = async (req, res) => {
   try {
-    const { name, email, password, role, rollNo, program, semester, department } = req.body;
+    const { 
+      name, email, password, role, 
+      rollNo, program, semester, 
+      employeeId, designation, qualification, specialization,
+      department, phone, accountStatus 
+    } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -220,16 +225,41 @@ exports.createUser = async (req, res) => {
       }
     }
 
-    const user = await User.create({
+    if (employeeId) {
+      const existingEmployeeId = await User.findOne({ employeeId });
+      if (existingEmployeeId) {
+        return res.status(400).json({
+          success: false,
+          message: 'User with this employee ID already exists'
+        });
+      }
+    }
+
+    // Create user data
+    const userData = {
       name,
       email,
       password,
       role,
-      rollNo,
-      program,
-      semester,
-      department
-    });
+      department,
+      phone,
+      // Admin and faculty are auto-approved, students can be set by admin or default to pending
+      accountStatus: role === 'student' ? (accountStatus || 'pending') : 'approved'
+    };
+
+    // Add role-specific fields
+    if (role === 'student') {
+      userData.rollNo = rollNo;
+      userData.program = program;
+      userData.semester = semester;
+    } else if (role === 'faculty') {
+      userData.employeeId = employeeId;
+      userData.designation = designation;
+      userData.qualification = qualification;
+      userData.specialization = specialization;
+    }
+
+    const user = await User.create(userData);
 
     res.status(201).json({
       success: true,
@@ -238,7 +268,8 @@ exports.createUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        accountStatus: user.accountStatus
       }
     });
   } catch (error) {
@@ -516,6 +547,135 @@ exports.getAnalytics = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching analytics',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get pending users
+// @route   GET /api/admin/users/pending
+// @access  Private (Admin)
+exports.getPendingUsers = async (req, res) => {
+  try {
+    const pendingUsers = await User.find({ 
+      accountStatus: 'pending',
+      role: 'student'
+    })
+      .select('-password')
+      .populate('department', 'name code')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: pendingUsers.length,
+      users: pendingUsers
+    });
+  } catch (error) {
+    console.error('Get pending users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching pending users',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Approve user account
+// @route   PUT /api/admin/users/:id/approve
+// @access  Private (Admin)
+exports.approveUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (user.accountStatus === 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already approved'
+      });
+    }
+
+    user.accountStatus = 'approved';
+    user.rejectionReason = undefined;
+    await user.save();
+
+    // Send notification to user
+    await Notification.create({
+      recipient: user._id,
+      type: 'system',
+      title: 'Account Approved',
+      message: 'Your account has been approved by the administrator. You can now log in.'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'User account approved successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        accountStatus: user.accountStatus
+      }
+    });
+  } catch (error) {
+    console.error('Approve user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error approving user',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Reject user account
+// @route   PUT /api/admin/users/:id/reject
+// @access  Private (Admin)
+exports.rejectUser = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    user.accountStatus = 'rejected';
+    user.rejectionReason = reason || 'No reason provided';
+    await user.save();
+
+    // Send notification to user
+    await Notification.create({
+      recipient: user._id,
+      type: 'system',
+      title: 'Account Rejected',
+      message: `Your account has been rejected. Reason: ${user.rejectionReason}`
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'User account rejected',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        accountStatus: user.accountStatus,
+        rejectionReason: user.rejectionReason
+      }
+    });
+  } catch (error) {
+    console.error('Reject user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error rejecting user',
       error: error.message
     });
   }

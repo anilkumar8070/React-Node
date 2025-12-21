@@ -141,7 +141,7 @@ const LandingPage = () => {
 
               {/* Faculty Card */}
               <Link
-                to="/signup?role=faculty"
+                to="/login"
                 className="group border-2 border-gray-200 rounded-xl p-4 sm:p-6 hover:border-green-600 hover:shadow-lg transition-all"
               >
                 <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:bg-green-600 transition-colors">
@@ -155,7 +155,7 @@ const LandingPage = () => {
 
               {/* Admin Card */}
               <Link
-                to="/signup?role=admin"
+                to="/login"
                 className="group border-2 border-gray-200 rounded-xl p-4 sm:p-6 hover:border-purple-600 hover:shadow-lg transition-all"
               >
                 <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:bg-purple-600 transition-colors">

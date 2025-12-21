@@ -32,6 +32,14 @@ exports.register = async (req, res) => {
       department, phone
     } = req.body;
 
+    // Prevent faculty from signing up (only admin can create faculty accounts)
+    if (role === 'faculty' || role === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Faculty and admin accounts can only be created by administrators'
+      });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -52,55 +60,27 @@ exports.register = async (req, res) => {
       }
     }
 
-    // Check if employee ID already exists (for faculty)
-    if (employeeId) {
-      const existingEmployeeId = await User.findOne({ employeeId });
-      if (existingEmployeeId) {
-        return res.status(400).json({
-          success: false,
-          message: 'User with this employee ID already exists'
-        });
-      }
-    }
-
     // Create user with role-specific fields
     const userData = {
       name,
       email,
       password,
-      role: role || 'student',
+      role: 'student', // Force student role for public registration
       department,
-      phone
+      phone,
+      accountStatus: 'pending' // Students start with pending status
     };
 
     // Add student-specific fields
-    if (role === 'student') {
-      userData.rollNo = rollNo;
-      userData.program = program;
-      userData.semester = semester;
-    }
-
-    // Add faculty-specific fields
-    if (role === 'faculty') {
-      userData.employeeId = employeeId;
-      userData.designation = designation;
-      userData.qualification = qualification;
-      userData.specialization = specialization;
-    }
+    userData.rollNo = rollNo;
+    userData.program = program;
+    userData.semester = semester;
 
     const user = await User.create(userData);
 
-    // Generate token
-    const token = generateToken(user._id);
-
-    // Update last login
-    user.lastLogin = Date.now();
-    await user.save();
-
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
-      token,
+      message: 'Registration successful! Your account is pending approval by the administrator.',
       user: {
         id: user._id,
         name: user.name,
@@ -109,7 +89,8 @@ exports.register = async (req, res) => {
         rollNo: user.rollNo,
         program: user.program,
         semester: user.semester,
-        department: user.department
+        department: user.department,
+        accountStatus: user.accountStatus
       }
     });
   } catch (error) {
@@ -157,6 +138,32 @@ exports.login = async (req, res) => {
       });
     }
 
+    // Check account status - only for students (admin and faculty are always approved)
+    if (user.role === 'student') {
+      const accountStatus = user.accountStatus || 'pending';
+      
+      if (accountStatus === 'pending') {
+        return res.status(403).json({
+          success: false,
+          message: 'Your account is pending approval. Please wait for admin approval.'
+        });
+      }
+
+      if (accountStatus === 'rejected') {
+        return res.status(403).json({
+          success: false,
+          message: `Your account has been rejected. Reason: ${user.rejectionReason || 'Contact admin for more information.'}`
+        });
+      }
+
+      if (accountStatus !== 'approved') {
+        return res.status(403).json({
+          success: false,
+          message: 'Your account is not approved. Please contact admin.'
+        });
+      }
+    }
+
     // Check password
     const isMatch = await user.comparePassword(password);
 
@@ -192,7 +199,8 @@ exports.login = async (req, res) => {
         department: user.department,
         profileImage: user.profileImage,
         activityScore: user.activityScore,
-        badges: user.badges
+        badges: user.badges,
+        accountStatus: user.accountStatus || 'pending'
       }
     });
   } catch (error) {

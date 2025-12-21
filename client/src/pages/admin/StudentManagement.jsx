@@ -124,7 +124,7 @@ const StudentManagement = () => {
   const fetchClasses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/classes', {
+      const response = await axios.get('/api/classes/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setClasses(response.data.classes || []);

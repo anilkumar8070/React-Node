@@ -11,7 +11,10 @@ const {
   updateDepartment,
   deleteDepartment,
   getAnalytics,
-  getAllActivities
+  getAllActivities,
+  getPendingUsers,
+  approveUser,
+  rejectUser
 } = require('../controllers/adminController');
 const {
   getAllMeetings,
@@ -37,9 +40,14 @@ router.route('/users')
   .get(getUsers)
   .post(createUser);
 
+router.get('/users/pending', getPendingUsers);
+
 router.route('/users/:id')
   .put(updateUser)
   .delete(deleteUser);
+
+router.put('/users/:id/approve', approveUser);
+router.put('/users/:id/reject', rejectUser);
 
 // Department management
 router.route('/departments')

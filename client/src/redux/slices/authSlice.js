@@ -22,6 +22,7 @@ export const register = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const response = await axios.post(`${API_URL}/auth/register`, userData);
+      // Note: Student accounts won't receive a token until approved
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -105,8 +106,10 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.message = action.payload.message;
+        // Only set user/token if provided (pending accounts won't have token)
+        state.user = action.payload.user || null;
+        state.token = action.payload.token || null;
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;

@@ -40,6 +40,17 @@ exports.protect = async (req, res, next) => {
         });
       }
 
+      // Check account status - only for students (admin and faculty are always approved)
+      if (req.user.role === 'student') {
+        const accountStatus = req.user.accountStatus || 'pending';
+        if (accountStatus !== 'approved') {
+          return res.status(403).json({
+            success: false,
+            message: 'Your account is not approved. Please contact admin for approval.'
+          });
+        }
+      }
+
       next();
     } catch (error) {
       return res.status(401).json({

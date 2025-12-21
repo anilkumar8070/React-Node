@@ -145,6 +145,17 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  accountStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: function() {
+      return this.role === 'student' ? 'pending' : 'approved';
+    }
+  },
+  rejectionReason: {
+    type: String,
+    trim: true
+  },
   lastLogin: {
     type: Date
   },
